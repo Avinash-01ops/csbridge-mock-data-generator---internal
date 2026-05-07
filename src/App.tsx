@@ -137,15 +137,15 @@ function App() {
   return (
     <div className="app-container">
       <header>
-        <h1>🏥 NPHIES Mock Data Generator</h1>
-        <p className="subtitle">Generate realistic test data for NPHIES healthcare system</p>
+        <h1>NPHIES Mock Data Generator</h1>
+        {/* <p className="subtitle">Generate realistic test data for NPHIES healthcare system</p> */}
       </header>
 
       <main>
         {/* Database Configuration Section */}
         <section className="card">
           <div className="section-header" onClick={() => setShowDbConfig(!showDbConfig)}>
-            <h2>🔧 Database Configuration</h2>
+            <h2>Database Configuration</h2>
             <button className="toggle-btn">{showDbConfig ? '▼' : '▶'}</button>
           </div>
 
@@ -228,9 +228,9 @@ function App() {
               <div className="button-group">
                 <button
                   onClick={handleTestConnection}
-                  className={`btn ${isConnected ? 'btn-success' : 'btn-primary'}`}
+                  className={`btn ${isConnected ? 'btn-success-connection' : 'btn-primary'}`}
                 >
-                  {isConnected ? '✓ Connected' : '🔌 Test Connection'}
+                  {isConnected ? '✓ Connected' : ' Test Connection'}
                 </button>
               </div>
 
@@ -246,7 +246,7 @@ function App() {
         {/* Data Generation Section */}
         <section className="card">
           <div className="section-header">
-            <h2>📊 Data Generation Settings</h2>
+            <h2>Data Generation Settings</h2>
           </div>
 
           <div className="section-content">
@@ -260,7 +260,7 @@ function App() {
                   value={numberOfEvents}
                   onChange={(e) => setNumberOfEvents(Math.max(1, parseInt(e.target.value) || 1))}
                 />
-                <span className="input-hint">Between 1 and 1000 events</span>
+                {/* <span className="input-hint">Between 1 and 1000 events</span> */}
               </div>
             </div>
 
@@ -276,19 +276,19 @@ function App() {
                 <option value="enhanced">ENHANCED (with uhr_event table)</option>
                 <option value="enhanced_auto">ENHANCED_AUTO (timestamp-based, no events table)</option>
               </select>
-              <span className="input-hint" style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem', display: 'block' }}>
-                {providerType.endsWith('_auto') 
-                  ? '⚡ AUTO mode: No events table, uses created_date/updated_date for sync' 
+              {/* <span className="input-hint" style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem', display: 'block' }}>
+                {providerType.endsWith('_auto')
+                  ? '⚡ AUTO mode: No events table, uses created_date/updated_date for sync'
                   : '📋 Event-based mode: Uses events table (nphies_events or uhr_event)'}
-              </span>
+              </span> */}
             </div>
 
             <div className="form-group">
               <div className="label-with-actions">
                 <label>Select Event Types:</label>
                 <div className="quick-actions">
-                  <button onClick={handleSelectAllEventTypes} className="btn-link">Select All</button>
-                  <button onClick={handleDeselectAllEventTypes} className="btn-link">Deselect All</button>
+                  <button onClick={handleSelectAllEventTypes} className="btn btn-primary btn-small">Select All</button>
+                  <button onClick={handleDeselectAllEventTypes} className="btn btn-primary btn-small">Deselect All</button>
                 </div>
               </div>
 
@@ -306,28 +306,13 @@ function App() {
               </div>
             </div>
 
-            <div className="info-box">
-              <h4>📝 Generation Details:</h4>
-              <ul>
-                <li><strong>Events:</strong> {numberOfEvents}</li>
-                <li><strong>Event Types:</strong> {selectedEventTypes.length} selected</li>
-                <li><strong>Associated Data:</strong> Each event will generate 1-3 entries in related tables</li>
-              </ul>
-              <div className="constant-values">
-                <h5>🔒 Constant Values Used:</h5>
-                <code>documentid: 30511223344557</code><br />
-                <code>providernphiesid: 15000000112233</code><br />
-                <code>physicianid: 00TEST1980</code>
-              </div>
-            </div>
-
             <div className="button-group">
               <button
                 onClick={handleGenerateData}
                 disabled={!isConnected || isGenerating || selectedEventTypes.length === 0}
                 className="btn btn-primary btn-large"
               >
-                {isGenerating ? '⏳ Generating...' : '🚀 Generate Data'}
+                {isGenerating ? 'Generating...' : 'Generate Data'}
               </button>
             </div>
 
@@ -342,53 +327,10 @@ function App() {
         {/* Test Scenarios Section */}
         <section className="card">
           <div className="section-header">
-            <h2>🧪 Test Scenarios for A01 Event</h2>
+            <h2>Test scenarios</h2>
           </div>
           <div className="section-content">
             <TestScenarios />
-          </div>
-        </section>
-
-        {/* Information Section */}
-        <section className="card info-card">
-          <h3>ℹ️ About This Tool</h3>
-          <p>
-            This application generates realistic mock data for the NPHIES healthcare system database.
-            It creates interconnected records across all 24 tables with proper foreign key relationships.
-          </p>
-          <h4>Generated Tables Include:</h4>
-          <div className="table-list">
-            <ul>
-              <li>nphies_events</li>
-              <li>nphies_beneficiary</li>
-              <li>nphies_coverage</li>
-              <li>nphies_coverage_class</li>
-              <li>nphies_claiminfo</li>
-              <li>nphies_claimitem</li>
-              <li>nphies_claimitemdetails</li>
-              <li>nphies_claimpreauthdetails</li>
-            </ul>
-            <ul>
-              <li>nphies_claimsupportinginfo</li>
-              <li>nphies_itemsupportinginfo</li>
-              <li>nphies_claimaccidentdetail</li>
-              <li>nphies_claimcareteam</li>
-              <li>nphies_claimdiagnosis</li>
-              <li>nphies_claimencounters</li>
-              <li>nphies_claimvisionprescription</li>
-              <li>nphies_encounteremergency</li>
-            </ul>
-            <ul>
-              <li>nphies_itemcareteam</li>
-              <li>nphies_itemdiagnosis</li>
-              <li>nphiesencounterhospitalization</li>
-            </ul>
-            <ul>
-              <li>nphies_pregnancy_details (ABHA)</li>
-              <li>nphies_claimitem_medication (ABHA)</li>
-              <li>nphies_claimitem_dosage (ABHA)</li>
-              <li>nphies_claimitem_procedure (ABHA)</li>
-            </ul>
           </div>
         </section>
       </main>
