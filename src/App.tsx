@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import TestScenarios from './TestScenarios'
 import './App.css'
 import { DbConfig, GenerationConfig } from './types'
 
@@ -335,6 +336,16 @@ function App() {
                 {generationMessage}
               </div>
             )}
+          </div>
+        </section>
+
+        {/* Test Scenarios Section */}
+        <section className="card">
+          <div className="section-header">
+            <h2>🧪 Test Scenarios for A01 Event</h2>
+          </div>
+          <div className="section-content">
+            <TestScenarios />
           </div>
         </section>
 
