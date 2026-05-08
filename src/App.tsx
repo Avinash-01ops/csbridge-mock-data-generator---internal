@@ -330,7 +330,7 @@ function App() {
             <h2>Test scenarios</h2>
           </div>
           <div className="section-content">
-            <TestScenarios />
+            <TestScenarios dbConfig={dbConfig} isConnected={isConnected} />
           </div>
         </section>
       </main>

@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { ProviderType } from './types';
+import React, { useState } from 'react';
+import { DbConfig, ProviderType } from './types';
 
 interface TestScenario {
   id: string;
@@ -11,14 +11,6 @@ interface TestResult {
   message: string;
   eventId?: string;
 }
-
-// Utility function to generate test scenarios in standardized format
-const createTestScenarios = (eventCode: string, descriptions: string[]): TestScenario[] => {
-  return descriptions.map((desc, index) => ({
-    id: `${eventCode.toLowerCase()}-${index + 1}`,
-    description: desc
-  }));
-};
 
 const EVENT_GROUPS: Record<string, TestScenario[]> = {
   A01: [
@@ -113,7 +105,12 @@ const EVENT_GROUPS: Record<string, TestScenario[]> = {
   ],
 };
 
-const TestScenarios: React.FC = () => {
+type Props = {
+  dbConfig: DbConfig;
+  isConnected: boolean;
+};
+
+const TestScenarios: React.FC<Props> = ({ dbConfig, isConnected }) => {
   const [activeGroup, setActiveGroup] = useState<string | null>(null);
   const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
@@ -145,57 +142,44 @@ const TestScenarios: React.FC = () => {
 
   const handleGenerate = async () => {
     if (selectedScenarios.length === 0) return;
+    if (!isConnected) {
+      const blockedResults: Record<string, TestResult> = {};
+      for (const scenarioId of selectedScenarios) {
+        blockedResults[scenarioId] = {
+          success: false,
+          message: 'Please test the database connection first.',
+        };
+      }
+      setTestResults(prev => ({ ...prev, ...blockedResults }));
+      return;
+    }
 
     setIsGenerating(true);
     const newResults: Record<string, TestResult> = {};
 
     for (const scenarioId of selectedScenarios) {
-      // TODO: In real implementation, call dataGenerator with specific config including providerType
-      // const result = await window.dbApi.generateTestScenario({
-      //   scenarioId,
-      //   providerType,
-      //   dbConfig: // from props or context
-      // });
+      try {
+        const eventType = activeGroup ?? 'A01';
+        const result = await window.dbApi.generateData({
+          numberOfEvents: 1,
+          eventTypes: [eventType],
+          providerType,
+          dbConfig,
+        });
 
-      // Determine if this is a test that should succeed or fail based on description
-      const description = EVENT_GROUPS[activeGroup!].find(s => s.id === scenarioId)?.description || '';
-      const shouldFail = description.includes('prevents submission') ||
-                        description.includes('not created') ||
-                        description.includes('rejected') ||
-                        description.includes('ignored') ||
-                        description.includes('blocks submission') ||
-                        description.includes('does not trigger') ||
-                        description.includes('not marked ready') ||
-                        description.includes('not assigned before validation');
-
-      if (!shouldFail) {
-        // Mock successful generation
         newResults[scenarioId] = {
-          success: true,
-          message: 'Event generated and validated successfully',
-          eventId: `EVT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+          success: result.success,
+          message: result.message,
+          // DataGenerator currently doesn't return the generated DB eventid.
+          // Keep a stable UI id so users can correlate the action.
+          eventId: result.success ? `TEST-${scenarioId}-${Date.now().toString(36).toUpperCase()}` : undefined,
         };
-      } else {
-        // Mock failed generation with appropriate error message
-        let errorMessage = 'Event generation failed as expected for validation test';
-        if (description.includes('empty') || description.includes('null')) {
-          errorMessage = 'Validation failed: Required field is empty/null';
-        } else if (description.includes('unsupported')) {
-          errorMessage = 'Validation failed: Unsupported value detected';
-        } else if (description.includes('invalid')) {
-          errorMessage = 'Validation failed: Invalid data format';
-        } else if (description.includes('not trigger')) {
-          errorMessage = 'Event not generated: Conditions not met';
-        }
-
+      } catch (e) {
         newResults[scenarioId] = {
           success: false,
-          message: errorMessage
+          message: `Error: ${e instanceof Error ? e.message : 'Unknown error'}`,
         };
       }
-
-      // Small delay to simulate async operation
-      await new Promise(resolve => setTimeout(resolve, 200));
     }
 
     setTestResults(prev => ({ ...prev, ...newResults }));
